@@ -1,4 +1,5 @@
 import streamlit as st
+import joblib
 import pickle
 import numpy as np
 from PIL import Image
@@ -16,13 +17,11 @@ st.markdown("<h1 style='text-align: center; color: #F63366;'>🎌 Anime Recommen
 st.markdown("<p style='text-align: center;'>Masukkan judul anime favoritmu dan dapatkan rekomendasi yang mirip!</p>", unsafe_allow_html=True)
 
 # Load model KNN
-@st.cache_resource
-def load_model():
-    with open("knn_recommender_model.pkl", "rb") as f:
-        model = pickle.load(f)
-    return model
-
-model = load_model()
+@st.cache_data
+def load_resources():
+    df = pd.read_csv("anime.csv")
+    model = joblib.load("knn_recommender_model.pkl")  # ganti dari pickle ke joblib
+    return df, model
 
 # Dummy data anime — ganti dengan data asli Anda
 anime_titles = [
