@@ -62,9 +62,6 @@ with st.form("recommendation_form"):
 
 # Output rekomendasi
 anime_input = st.text_input("Masukkan judul anime favoritmu:")
-
-# Load data dan model
-df_anime, tfidf_vectorizer, knn_model, tfidf_matrix = load_data()
 if st.button("Dapatkan Rekomendasi"):
     if anime_input.strip():
         result = get_recommendations(
