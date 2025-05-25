@@ -61,16 +61,20 @@ with st.form("recommendation_form"):
     submitted = st.form_submit_button("🔍 Dapatkan Rekomendasi")
 
 # Output rekomendasi
-if submitted:
-    if anime_input:
-        with st.spinner("Mencari rekomendasi..."):
-            result = get_recommendations(anime_input.strip())
-        st.success("🎯 Rekomendasi ditemukan:")
-        for i, rec in enumerate(result, 1):
-            st.markdown(f"- **{i}. {rec}**")
+if st.button("Dapatkan Rekomendasi"):
+    if anime_input.strip():
+        result = get_recommendations(
+            anime_input.strip(),
+            df_anime,
+            tfidf_vectorizer,
+            knn_model,
+            tfidf_matrix
+        )
+        st.write("### 🎯 Rekomendasi untukmu:")
+        for r in result:
+            st.write("🔹", r)
     else:
-        st.warning("⚠️ Silakan masukkan judul anime terlebih dahulu.")
-
+        st.warning("⚠️ Masukkan judul anime terlebih dahulu.")
 # Footer
 st.markdown(
     "<hr><center><small>Made with ❤️ using Streamlit</small></center>",
