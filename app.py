@@ -18,10 +18,17 @@ st.markdown("<p style='text-align: center;'>Masukkan judul anime favoritmu dan d
 
 # Load model KNN
 @st.cache_data
-def load_resources():
+def load_data():
     df = pd.read_csv("anime.csv")
-    model = joblib.load("knn_recommender_model.pkl")  # ganti dari pickle ke joblib
-    return df, model
+    df['genre'] = df['genre'].fillna("")
+    
+    tfidf = TfidfVectorizer(stop_words='english')
+    tfidf_matrix = tfidf.fit_transform(df['genre'])
+    
+    model = NearestNeighbors(metric='cosine', algorithm='brute')
+    model.fit(tfidf_matrix)
+    
+    return df, tfidf, model, tfidf_matrix
 
 # Dummy data anime — ganti dengan data asli Anda
 anime_titles = [
@@ -31,21 +38,22 @@ anime_titles = [
 anime_features = np.random.rand(len(anime_titles), 10)
 
 # Fungsi rekomendasi
-def get_recommendations(title, k=5):
-    if title not in anime_titles:
-        return ["❌ Judul tidak ditemukan dalam database."]
+def get_recommendations(title, df, model, vectorizer, k=5):
+    index = df[df['title'] == title].index
+    if len(index) == 0:
+        return ["Anime tidak ditemukan."]
     
-    idx = anime_titles.index(title)
-    vector = anime_features[idx].reshape(1, -1)
+    index = index[0]
+    genre = df.loc[index, 'genre']
+    vector = vectorizer.transform([genre])
     
     distances, indices = model.kneighbors(vector, n_neighbors=k+1)
-    
-    recommendations = []
+
+    recommended_titles = []
     for i in range(1, len(indices[0])):
-        rec_idx = indices[0][i]
-        recommendations.append(anime_titles[rec_idx])
-    
-    return recommendations
+        recommended_titles.append(df.iloc[indices[0][i]]['title'])
+
+    return recommended_titles
 
 # Input user
 with st.form("recommendation_form"):
